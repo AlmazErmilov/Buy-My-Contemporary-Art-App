@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 
 // Dummy data class for shopping cart items
 data class CartItem(
+    val id: Int,
     val name: String,
     val frameInfo: String,
     val price: Float
@@ -26,8 +27,8 @@ data class CartItem(
 
 // Temporary list of cart items, upgrade needed, new class
 val cartItems = listOf(
-    CartItem("Picture 1", "Metal frame", 146.00f),
-    CartItem("Picture 2", "Wooden frame", 400.00f)
+    CartItem(0 , "Picture 1", "Metal frame", 146.00f),
+    CartItem(1, "Picture 2", "Wooden frame", 400.00f)
 )
 
 @Preview

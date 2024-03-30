@@ -8,3 +8,7 @@ data class Photo(
     val category: Category,
     var price: Float
 )
+
+enum class Category {
+    ANIMALS, SPORTS, FOOD, ABSTRACT
+}
