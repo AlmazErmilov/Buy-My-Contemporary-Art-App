@@ -5,6 +5,8 @@
     <string name="danny">Danny Lee</string>
     <string name="anthony">Anthony Capriati</string>
     <string name="tj">T.J. Cummings</string>
-
+    <string name="wood_frame">Wood Frame</string>
+    <string name="metal_frame">Metal Frame</string>
+    <string name="plastic_frame">Plastic Frame</string>
 
 </resources>

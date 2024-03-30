@@ -2,40 +2,26 @@ package com.example.buy_my_contemporary_art_app.ui
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.material3.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.buy_my_contemporary_art_app.data.*
 
-// Dummy data class for shopping cart items
-data class CartItem(
-    val id: Int,
-    val name: String,
-    val frameInfo: String,
-    val price: Float
-)
-
-// Temporary list of cart items, upgrade needed, new class
-val cartItems = listOf(
-    CartItem(0 , "Picture 1", "Metal frame", 146.00f),
-    CartItem(1, "Picture 2", "Wooden frame", 400.00f)
-)
-
-@Preview
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(viewModel: ShoppingCartViewModel = viewModel()) {
+    val cartItems = viewModel.cartItems.collectAsState().value
+
     Scaffold() {
         Column(modifier = Modifier.fillMaxSize()) {
             CenterAlignedTopAppBar(
@@ -49,7 +35,7 @@ fun HomeScreen() {
                     .fillMaxWidth()
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
-            ) {// upgrade needed
+            ) {
                 Button(onClick = { /* TODO: Handle artist click */ }) {
                     Text("Artist")
                 }
@@ -57,13 +43,13 @@ fun HomeScreen() {
                     Text("Category")
                 }
             }
-            ShoppingCart(cartItems)
+            ShoppingCart(cartItems, viewModel::removeItemFromCart)
         }
     }
 }
 
 @Composable
-fun ShoppingCart(cartItems: List<CartItem>) {
+fun ShoppingCart(cartItems: List<ShoppingCartItem>, onDeleteClick: (ShoppingCartItem) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -76,7 +62,7 @@ fun ShoppingCart(cartItems: List<CartItem>) {
         Divider(color = Color.LightGray, thickness = 1.dp)
         LazyColumn {
             items(cartItems) { item ->
-                ShoppingCartItem(item)
+                ShoppingCartItem(item, onDeleteClick)
             }
         }
         Row(
@@ -94,21 +80,21 @@ fun ShoppingCart(cartItems: List<CartItem>) {
 }
 
 @Composable
-fun ShoppingCartItem(item: CartItem) {
+fun ShoppingCartItem(item: ShoppingCartItem, onDeleteClick: (ShoppingCartItem) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
-        ) {
+    ) {
         Row(
             modifier = Modifier.padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // should be the image but for simplicity, we are using a placeholder
+            // Replace with Image when available
             Box(
                 modifier = Modifier
                     .size(60.dp)
-                    .background(Color.Gray)  // upgrade, actual photo
+                    .background(Color.Gray)
             )
             Column(
                 modifier = Modifier
@@ -120,11 +106,18 @@ fun ShoppingCartItem(item: CartItem) {
                 Text("Price incl. frame: NOK ${item.price}")
             }
             Button(
-                onClick = { /* TODO: Remove item from cart */ }, // upgrade needed
+                onClick = { onDeleteClick(item) },
                 modifier = Modifier.padding(8.dp)
             ) {
                 Text("Delete")
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun DefaultPreview() {
+    // Provide a dummy ViewModel here if necessary for the preview to work
+    HomeScreen()
 }

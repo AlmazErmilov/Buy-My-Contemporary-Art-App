@@ -1,10 +1,14 @@
-package com.example.buy_my_contemporary_art_app.model
-
 package com.example.buy_my_contemporary_art_app.data
 
-data class ShoppingCartItem(
-    val id: Int,
-    val name: String,
-    val frameInfo: String,
-    val price: Float
-)
+class ShoppingCart {
+    private val _items = mutableListOf<ShoppingCartItem>()
+    val items: List<ShoppingCartItem> get() = _items
+
+    fun addItem(item: ShoppingCartItem) {
+        _items.add(item)
+    }
+
+    fun removeItem(item: ShoppingCartItem) {
+        _items.remove(item)
+    }
+}
