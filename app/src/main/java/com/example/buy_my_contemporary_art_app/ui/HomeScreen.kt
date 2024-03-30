@@ -43,7 +43,31 @@ fun HomeScreen(viewModel: ShoppingCartViewModel = viewModel()) {
                     Text("Category")
                 }
             }
+            DummyItemButtons { item ->
+                viewModel.addItemToCart(item)
+            }
             ShoppingCart(cartItems, viewModel::removeItemFromCart)
+        }
+    }
+}
+
+@Composable
+fun DummyItemButtons(onAddClick: (ShoppingCartItem) -> Unit) {
+    // Assuming your dummy items are in ShoppingCartDataSource.dummyItems
+    val dummyItems = ShoppingCartDataSource.dummyItems
+    Column {
+        dummyItems.forEach { item ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = item.name, modifier = Modifier.weight(1f))
+                Button(onClick = { onAddClick(item) }) {
+                    Text("Add to Cart")
+                }
+            }
         }
     }
 }
