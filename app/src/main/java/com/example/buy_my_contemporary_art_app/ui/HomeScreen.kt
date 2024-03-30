@@ -24,7 +24,7 @@ data class CartItem(
     val price: Float
 )
 
-// Temporary list of cart items
+// Temporary list of cart items, upgrade needed, new class
 val cartItems = listOf(
     CartItem("Picture 1", "Metal frame", 146.00f),
     CartItem("Picture 2", "Wooden frame", 400.00f)
@@ -48,7 +48,7 @@ fun HomeScreen() {
                     .fillMaxWidth()
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
+            ) {// upgrade needed
                 Button(onClick = { /* TODO: Handle artist click */ }) {
                     Text("Artist")
                 }
@@ -107,7 +107,7 @@ fun ShoppingCartItem(item: CartItem) {
             Box(
                 modifier = Modifier
                     .size(60.dp)
-                    .background(Color.Gray)
+                    .background(Color.Gray)  // upgrade, actual photo
             )
             Column(
                 modifier = Modifier
@@ -119,7 +119,7 @@ fun ShoppingCartItem(item: CartItem) {
                 Text("Price incl. frame: NOK ${item.price}")
             }
             Button(
-                onClick = { /* TODO: Remove item from cart */ },
+                onClick = { /* TODO: Remove item from cart */ }, // upgrade needed
                 modifier = Modifier.padding(8.dp)
             ) {
                 Text("Delete")

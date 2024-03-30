@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">Buy-My-Contemporary-Art-App</string>
     <string name="app_title">The Art Dealer</string>
+    <string name="billy">Billy Herrington</string>
+    <string name="danny">Danny Lee</string>
+    <string name="anthony">Anthony Capriati</string>
+    <string name="tj">T.J. Cummings</string>
+
+
 </resources>
