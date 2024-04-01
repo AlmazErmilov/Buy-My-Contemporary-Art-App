@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 
 //import com.example.buy_my_contemporary_art_app.data.*
 //import com.example.buy_my_contemporary_art_app.data.ShoppingCartDataSource
@@ -42,6 +43,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,16 +54,24 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             BuyMyContemporaryArtAppTheme {
-                HomeScreen(shoppingCartViewModel)
+                MyApp(shoppingCartViewModel)
             }
         }
     }
 }
-
+@Composable
+fun MyApp(viewModel: ShoppingCartViewModel) {
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = "home") {
+        composable("home") { HomeScreen(viewModel, navController) }
+        composable("artists") { ArtistsScreen(viewModel) }
+        composable("categories") { CategoriesScreen(viewModel) }
+    }
+}
 //@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: ShoppingCartViewModel) {
+fun HomeScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
     //val cartItems by viewModel.cartItems.collectAsState()
     //val scrollState = rememberScrollState()
 
@@ -83,10 +96,10 @@ fun HomeScreen(viewModel: ShoppingCartViewModel) {
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Button(onClick = { /* TODO: Handle artist click */ }) {
+                Button(onClick = { navController.navigate("artists") }) {
                     Text("Artist")
                 }
-                Button(onClick = { /* TODO: Handle category click */ }) {
+                Button(onClick = { navController.navigate("categories") }) {
                     Text("Category")
                 }
             }
@@ -94,6 +107,16 @@ fun HomeScreen(viewModel: ShoppingCartViewModel) {
             ShoppingCart(viewModel)
         }
     }
+}
+
+@Composable
+fun ArtistsScreen(viewModel: ShoppingCartViewModel) {
+    // Implementation Artists screen UI here
+}
+
+@Composable
+fun CategoriesScreen(viewModel: ShoppingCartViewModel) {
+    // Implementation Categories screen UI here
 }
 
 @Composable
@@ -242,7 +265,7 @@ fun ShoppingCartItem(item: ShoppingCartItem, viewModel: ShoppingCartViewModel) {
 @Composable
 fun DefaultPreview() {
     // Provide a dummy ViewModel here if necessary for the preview to work
-    HomeScreen(viewModel())
+    HomeScreen(viewModel(), rememberNavController())
 }
 //////////////////////////////////////////////////////////////////
 // ViewModel classes
