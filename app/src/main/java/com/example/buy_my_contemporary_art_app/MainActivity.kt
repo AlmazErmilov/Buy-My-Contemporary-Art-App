@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.annotation.DrawableRes
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -285,11 +286,12 @@ class ShoppingCartViewModel : ViewModel() {
 // basic classes
 data class Photo(
     val id: Long,
-    val title: String,
+    val title: String = "",
+    @DrawableRes
     val imageResId: Int,
     val artist: Artist,
     val category: Category,
-    var price: Float
+    var price: Float = 0.0f
 )
 enum class Category { ANIMALS, SPORTS, FOOD, ABSTRACT }
 
