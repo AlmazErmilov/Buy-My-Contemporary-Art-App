@@ -38,7 +38,7 @@ fun HomeScreen(viewModel: ShoppingCartViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(contentPadding)
-                //.verticalScroll()
+                //.verticalScroll(scrollState)
         ) {
             CenterAlignedTopAppBar(
                 title = { Text("The Art Dealer") },
