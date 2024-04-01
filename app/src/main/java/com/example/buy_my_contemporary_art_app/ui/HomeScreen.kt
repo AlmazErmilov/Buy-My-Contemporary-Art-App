@@ -31,12 +31,14 @@ fun HomeScreen(viewModel: ShoppingCartViewModel) {
     //val cartItems_NEW by viewModel.cartItems.collectAsState()
     val scrollState = rememberScrollState()
 
-    Scaffold() {contentPadding ->
+    Scaffold(
+        //modifier = Modifier.verticalScroll(scrollState)
+    ) {contentPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(contentPadding)
-                //.verticalScroll(scrollState)
+                //.verticalScroll()
         ) {
             CenterAlignedTopAppBar(
                 title = { Text("The Art Dealer") },
