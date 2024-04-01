@@ -2,6 +2,7 @@ package com.example.buy_my_contemporary_art_app
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 //import android.annotation.SuppressLint
 
 import androidx.activity.ComponentActivity
@@ -26,14 +27,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-import com.example.buy_my_contemporary_art_app.data.*
+//import com.example.buy_my_contemporary_art_app.data.*
 //import com.example.buy_my_contemporary_art_app.data.ShoppingCartDataSource
 //import com.example.buy_my_contemporary_art_app.ui.HomeScreen
-import com.example.buy_my_contemporary_art_app.ui.ShoppingCartViewModel
+//import com.example.buy_my_contemporary_art_app.ui.ShoppingCartViewModel
 import com.example.buy_my_contemporary_art_app.ui.theme.BuyMyContemporaryArtAppTheme
+
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -237,7 +243,46 @@ fun DefaultPreview() {
     // Provide a dummy ViewModel here if necessary for the preview to work
     HomeScreen(viewModel())
 }
+//////////////////////////////////////////////////////////////////
+// ViewModel classes
+data class ShoppingCartItem(
+    val id: Int,
+    val name: String,
+    val frameInfo: String,
+    val price: Float
+)
+class ShoppingCart {
+    private val _items = mutableListOf<ShoppingCartItem>()
+    val items: List<ShoppingCartItem> get() = _items.toList()
 
+    fun addItem(item: ShoppingCartItem) {
+        _items.add(item)
+    }
+
+    fun removeItem(item: ShoppingCartItem) {
+        _items.remove(item)
+    }
+}
+class ShoppingCartViewModel : ViewModel() {
+    private val _cart = ShoppingCart()
+    private val _cartItems = MutableStateFlow<List<ShoppingCartItem>>(_cart.items)
+    val cartItems: StateFlow<List<ShoppingCartItem>> = _cartItems.asStateFlow()
+
+    fun addItemToCart(item: ShoppingCartItem) {
+        _cart.addItem(item).also { Log.d("ShoppingCart", "Item added: $item") }
+        _cartItems.value = _cart.items.also { Log.d("ShoppingCart", "Cart items updated: $_cart.items") }
+        //_cartItems.update { _cart.items }
+    }
+
+    fun removeItemFromCart(item: ShoppingCartItem) {
+        _cart.removeItem(item)
+        _cartItems.value = _cart.items
+        //_cartItems.update { _cart.items }
+    }
+}
+
+//////////////////////////////////////////////////////////////////
+// basic classes
 data class Photo(
     val id: Long,
     val title: String,
@@ -255,5 +300,16 @@ class DataSourceArtist(context: Context){
         Artist(1, context.getString(R.string.anthony)),
         Artist(2, context.getString(R.string.tj)),
         Artist(3, context.getString(R.string.danny)),
+    )
+}
+
+//////////////////////////////////////////////////////////////////
+// DATASOURCE classes
+object ShoppingCartDataSource {
+    val dummyItems = listOf(
+        ShoppingCartItem(1, "Landscape Painting", "Wooden Frame", 150f),
+        //ShoppingCartItem(2, "Abstract Artwork", "Metal Frame", 200f),
+        //ShoppingCartItem(3, "Portrait", "Plastic Frame", 100f),
+        //ShoppingCartItem(4, "Modern Art", "Metal Frame", 300f)
     )
 }
