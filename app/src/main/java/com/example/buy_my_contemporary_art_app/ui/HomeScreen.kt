@@ -15,29 +15,27 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.buy_my_contemporary_art_app.data.*
-import androidx.compose.foundation.clickable
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.runtime.*
 import com.example.buy_my_contemporary_art_app.data.ShoppingCartDataSource
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+//@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: ShoppingCartViewModel = viewModel()) {
-    //val cartItems = viewModel.cartItems.collectAsState().value
+fun HomeScreen(viewModel: ShoppingCartViewModel) {
     val cartItems by viewModel.cartItems.collectAsState()
+    //val cartItems_NEW by viewModel.cartItems.collectAsState()
     val scrollState = rememberScrollState()
 
-    Scaffold() {
+    Scaffold() {contentPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(contentPadding)
                 //.verticalScroll(scrollState)
         ) {
             CenterAlignedTopAppBar(
@@ -60,7 +58,7 @@ fun HomeScreen(viewModel: ShoppingCartViewModel = viewModel()) {
                 }
             }
             DummyItemButtons(viewModel)
-            ShoppingCart(cartItems, viewModel::removeItemFromCart)
+            ShoppingCart(viewModel)
         }
     }
 }
@@ -108,7 +106,8 @@ fun DummyItemButtons(viewModel: ShoppingCartViewModel) {
                     Text(text = "$size (+${sizePrices[size]} NOK)")
                 }
             }
-            Button(onClick = {
+            Button(modifier = Modifier.fillMaxWidth(),
+                onClick = {
                 val basePrice = item.price // Base price for the photo
                 val finalPrice = basePrice + (framePrices[selectedFrame] ?: 0f) + (sizePrices[selectedSize] ?: 0f)
                 val newItem = ShoppingCartItem(
@@ -126,38 +125,52 @@ fun DummyItemButtons(viewModel: ShoppingCartViewModel) {
 }
 
 @Composable
-fun ShoppingCart(cartItems: List<ShoppingCartItem>, onDeleteClick: (ShoppingCartItem) -> Unit) {
+fun ShoppingCart(viewModel: ShoppingCartViewModel) {
+    val cartItems by viewModel.cartItems.collectAsState()
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
         Text(
-            "My shopping cart",
+            "My Shopping Cart",
             style = MaterialTheme.typography.displaySmall
         )
         Divider(color = Color.LightGray, thickness = 1.dp)
-        LazyColumn {
-            items(cartItems) { item ->
-                ShoppingCartItem(item, onDeleteClick)
+
+        if (cartItems.isEmpty()) {
+            Text("Your shopping cart is empty.",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        } else {
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 8.dp)
+                .verticalScroll(scrollState)) {
+                Column {
+                    cartItems.forEach { item ->
+                        ShoppingCartItem(item, viewModel)
+                    }
+                }
             }
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
             Button(
-                onClick = { /* TODO: Navigate to payment */ },
-                modifier = Modifier.padding(16.dp)
+                onClick = { /* Navigate to payment */ },
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 16.dp)
             ) {
-                Text("Go to payment")
+                Text("Go to Payment")
             }
         }
     }
 }
 
+
 @Composable
-fun ShoppingCartItem(item: ShoppingCartItem, onDeleteClick: (ShoppingCartItem) -> Unit) {
+fun ShoppingCartItem(item: ShoppingCartItem, viewModel: ShoppingCartViewModel) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -183,7 +196,7 @@ fun ShoppingCartItem(item: ShoppingCartItem, onDeleteClick: (ShoppingCartItem) -
                 Text("Price incl. frame: NOK ${item.price}")
             }
             Button(
-                onClick = { onDeleteClick(item) },
+                onClick =  { viewModel.removeItemFromCart(item) },
                 modifier = Modifier.padding(8.dp)
             ) {
                 Text("Delete")
@@ -196,5 +209,5 @@ fun ShoppingCartItem(item: ShoppingCartItem, onDeleteClick: (ShoppingCartItem) -
 @Composable
 fun DefaultPreview() {
     // Provide a dummy ViewModel here if necessary for the preview to work
-    HomeScreen()
+    HomeScreen(viewModel())
 }
