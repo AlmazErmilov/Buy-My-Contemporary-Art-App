@@ -30,7 +30,8 @@ import androidx.compose.foundation.rememberScrollState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(viewModel: ShoppingCartViewModel = viewModel()) {
-    val cartItems = viewModel.cartItems.collectAsState().value
+    //val cartItems = viewModel.cartItems.collectAsState().value
+    val cartItems by viewModel.cartItems.collectAsState()
     val scrollState = rememberScrollState()
 
     Scaffold() {
