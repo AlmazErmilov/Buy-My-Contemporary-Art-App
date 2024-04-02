@@ -11,21 +11,26 @@ import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.ListItem
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -111,12 +116,36 @@ fun HomeScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
 
 @Composable
 fun ArtistsScreen(viewModel: ShoppingCartViewModel) {
-    // Implementation Artists screen UI here
+    val context = LocalContext.current
+    val dataSourceArtist = DataSourceArtist(context)
+    val artists = dataSourceArtist.artists
+
+    LazyColumn {
+        items(artists) { artist ->
+            ListItem(
+                text = { Text(artist.name) },
+                modifier = Modifier.clickable {
+                    // Here you can handle the artist selection, e.g., navigate to a detail screen or show artist's images
+                }
+            )
+        }
+    }
 }
 
 @Composable
 fun CategoriesScreen(viewModel: ShoppingCartViewModel) {
-    // Implementation Categories screen UI here
+    val categories = Category.values()
+
+    LazyColumn {
+        items(categories) { category ->
+            ListItem(
+                text = { Text(category.name) },
+                modifier = Modifier.clickable {
+                    // Here you can handle the category selection
+                }
+            )
+        }
+    }
 }
 
 @Composable
