@@ -73,8 +73,8 @@ fun MyApp(viewModel: ShoppingCartViewModel) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "home") {
         composable("home") { HomeScreen(viewModel, navController) }
-        composable("artists") { ArtistsScreen(viewModel) }
-        composable("categories") { CategoriesScreen(viewModel) }
+        composable("artists") { ArtistsScreen(viewModel, navController) }
+        composable("categories") { CategoriesScreen(viewModel, navController) }
     }
 }
 //@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -96,15 +96,13 @@ fun HomeScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
             TopAppBar(
                 title = { Text("The Art Dealer",
                 textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .align(Alignment.CenterHorizontally)
-
-
                 ) },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 ),
-
             )
             Row(
                 modifier = Modifier
@@ -125,37 +123,87 @@ fun HomeScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
     }
 }
 
+@Preview
 @Composable
-fun ArtistsScreen(viewModel: ShoppingCartViewModel) {
+fun ArtistPreview() {
+    // Provide a dummy ViewModel here if necessary for the preview to work
+    ArtistsScreen(viewModel(), rememberNavController())
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ArtistsScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
     val context = LocalContext.current
     val dataSourceArtist = DataSourceArtist(context)
     val artists = dataSourceArtist.artists
 
-    LazyColumn {
-        items(artists) { artist ->
-            ListItem(
-                headlineContent = { Text(artist.name) },
-                modifier = Modifier.clickable {
-                    // Here you can handle the artist selection, e.g., navigate to a detail screen or show artist's images
-                }
-            )
+    Column {
+
+        TopAppBar(
+            title = {
+                Row {
+                    Text("<-", modifier = Modifier.clickable {
+                        navController.navigate("home")
+                    })
+
+                    Text("Choose artist",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) }
+            },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            ),
+        )
+
+        LazyColumn {
+            items(artists) { artist ->
+                ListItem(
+                    headlineContent = { Text(artist.name) },
+                    modifier = Modifier.clickable {
+                        // Here you can handle the artist selection, e.g., navigate to a detail screen or show artist's images
+                    }
+                )
+            }
         }
     }
-
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CategoriesScreen(viewModel: ShoppingCartViewModel) {
+fun CategoriesScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
     val categories = Category.values()
 
-    LazyColumn {
-        items(categories) { category ->
-            ListItem(
-                headlineContent = { Text(category.name) },
-                modifier = Modifier.clickable {
-                    // Here you can handle the category selection
-                }
-            )
+    Column {
+
+        TopAppBar(
+            title = {
+                Row {
+                    Text("<-", modifier = Modifier.clickable {
+                        navController.navigate("home")
+                    })
+
+                    Text("Choose category",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) }
+            },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            ),
+        )
+
+        LazyColumn {
+            items(categories) { category ->
+                ListItem(
+                    headlineContent = { Text(category.name) },
+                    modifier = Modifier.clickable {
+                        // Here you can handle the category selection
+                    }
+                )
+            }
         }
     }
 }
