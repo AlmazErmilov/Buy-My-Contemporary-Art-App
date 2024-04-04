@@ -13,6 +13,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+//import androidx.compose.foundation.layout.FlowColumnScopeInstance.align
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
@@ -34,6 +35,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.text.style.TextAlign
+
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -89,11 +93,18 @@ fun HomeScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
                 .padding(contentPadding)
             //.verticalScroll(scrollState)
         ) {
-            CenterAlignedTopAppBar(
-                title = { Text("The Art Dealer") },
+            TopAppBar(
+                title = { Text("The Art Dealer",
+                textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                        .align(Alignment.CenterHorizontally)
+
+
+                ) },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                ),
+
             )
             Row(
                 modifier = Modifier
@@ -123,13 +134,14 @@ fun ArtistsScreen(viewModel: ShoppingCartViewModel) {
     LazyColumn {
         items(artists) { artist ->
             ListItem(
-                text = { Text(artist.name) },
+                headlineContent = { Text(artist.name) },
                 modifier = Modifier.clickable {
                     // Here you can handle the artist selection, e.g., navigate to a detail screen or show artist's images
                 }
             )
         }
     }
+
 }
 
 @Composable
@@ -139,7 +151,7 @@ fun CategoriesScreen(viewModel: ShoppingCartViewModel) {
     LazyColumn {
         items(categories) { category ->
             ListItem(
-                text = { Text(category.name) },
+                headlineContent = { Text(category.name) },
                 modifier = Modifier.clickable {
                     // Here you can handle the category selection
                 }
