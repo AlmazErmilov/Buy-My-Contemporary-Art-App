@@ -149,7 +149,7 @@ fun ArtistsScreen(viewModel: ShoppingCartViewModel, navController: NavController
         TopAppBar(
             title = {
                 Row {
-                    Text("<-", modifier = Modifier.clickable {
+                    Text("<", modifier = Modifier.clickable {
                         navController.navigate("home")
                     })
 
@@ -171,7 +171,7 @@ fun ArtistsScreen(viewModel: ShoppingCartViewModel, navController: NavController
                         Image(
                             painter = painterResource(id = artist.imageResId),
                             contentDescription = "${artist.name}'s picture",
-                            modifier = Modifier.size(100.dp) // Adjust the size as needed
+                            modifier = Modifier.size(110.dp) // Adjust the size as needed
                         )
                     },
                     headlineContent = { Text(artist.name) },
@@ -194,7 +194,7 @@ fun CategoriesScreen(viewModel: ShoppingCartViewModel, navController: NavControl
         TopAppBar(
             title = {
                 Row {
-                    Text("<-", modifier = Modifier.clickable {
+                    Text("<", modifier = Modifier.clickable {
                         navController.navigate("home")
                     })
 
@@ -438,7 +438,7 @@ data class Artist(
 class DataSourceArtist(context: Context){
     val artists = listOf(
         Artist(0, context.getString(R.string.billy), R.drawable.billyherr),
-        Artist(1, context.getString(R.string.anthony), R.drawable.anton),
+        Artist(1, context.getString(R.string.anthony), R.drawable.vit),
         Artist(2, context.getString(R.string.tj), R.drawable.cummings),
         Artist(3, context.getString(R.string.danny), R.drawable.danny),
     )
