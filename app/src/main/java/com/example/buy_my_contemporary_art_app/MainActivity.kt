@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +20,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material.icons.filled.Fastfood
+import androidx.compose.material.icons.filled.BlurOn
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -36,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 
 
@@ -160,9 +167,16 @@ fun ArtistsScreen(viewModel: ShoppingCartViewModel, navController: NavController
         LazyColumn {
             items(artists) { artist ->
                 ListItem(
+                    trailingContent = {
+                        Image(
+                            painter = painterResource(id = artist.imageResId),
+                            contentDescription = "${artist.name}'s picture",
+                            modifier = Modifier.size(100.dp) // Adjust the size as needed
+                        )
+                    },
                     headlineContent = { Text(artist.name) },
                     modifier = Modifier.clickable {
-                        // Here you can handle the artist selection, e.g., navigate to a detail screen or show artist's images
+                        // Here you can handle the artist selection
                     }
                 )
             }
@@ -197,7 +211,16 @@ fun CategoriesScreen(viewModel: ShoppingCartViewModel, navController: NavControl
 
         LazyColumn {
             items(categories) { category ->
+                val icon = when (category) {
+                    Category.ANIMALS -> Icons.Filled.Pets
+                    Category.SPORTS -> Icons.Filled.SportsSoccer
+                    Category.FOOD -> Icons.Filled.Fastfood
+                    Category.ABSTRACT -> Icons.Filled.BlurOn
+                }
                 ListItem(
+                    trailingContent = {
+                        Icon(icon, contentDescription = category.name)
+                    },
                     headlineContent = { Text(category.name) },
                     modifier = Modifier.clickable {
                         // Here you can handle the category selection
@@ -407,13 +430,17 @@ data class Photo(
 )
 enum class Category { ANIMALS, SPORTS, FOOD, ABSTRACT }
 
-data class Artist( val id: Long, val name: String )
+data class Artist(
+    val id: Long,
+    val name: String,
+    @DrawableRes val imageResId: Int
+)
 class DataSourceArtist(context: Context){
     val artists = listOf(
-        Artist(0, context.getString(R.string.billy)),
-        Artist(1, context.getString(R.string.anthony)),
-        Artist(2, context.getString(R.string.tj)),
-        Artist(3, context.getString(R.string.danny)),
+        Artist(0, context.getString(R.string.billy), R.drawable.billyherr),
+        Artist(1, context.getString(R.string.anthony), R.drawable.anton),
+        Artist(2, context.getString(R.string.tj), R.drawable.cummings),
+        Artist(3, context.getString(R.string.danny), R.drawable.danny),
     )
 }
 
