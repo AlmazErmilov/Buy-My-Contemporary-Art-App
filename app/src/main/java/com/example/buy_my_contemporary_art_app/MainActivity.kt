@@ -723,7 +723,7 @@ object DataSourcePhotos {
         Photo(id = 5, title = "Abstract0", imageResId = R.drawable.abstract0,
             artist = Artist(0, R.string.danny.toString(), R.drawable.food0),
             category = Category.ABSTRACT, price = 300f),
-        Photo(id = 6, title = "Abstract2", imageResId = R.drawable.abstract1,
+        Photo(id = 6, title = "Abstract1", imageResId = R.drawable.abstract1,
             artist = Artist(1, R.string.anthony.toString(), R.drawable.food0),
             category = Category.ABSTRACT, price = 300f),
         Photo(id = 7, title = "Abstract2", imageResId = R.drawable.abstract2,
