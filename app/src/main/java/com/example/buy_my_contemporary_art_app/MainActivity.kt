@@ -18,7 +18,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -95,6 +94,7 @@ fun MyApp(viewModel: ShoppingCartViewModel) {
         composable("home") { HomeScreen(viewModel, navController) }
         composable("artists") { ArtistsScreen(viewModel, navController) }
         composable("categories") { CategoriesScreen(viewModel, navController) }
+        composable("payment") { PaymentScreen(viewModel, navController) }
         composable("photos/{artistId}") { backStackEntry ->
             PhotosScreen(
                 artistId = backStackEntry.arguments?.getString("artistId")?.toLong() ?: -1,
@@ -156,12 +156,11 @@ fun HomeScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
                 }
             }
             DummyItemButtons(viewModel)
-            ShoppingCart(viewModel)
+            ShoppingCart(viewModel, navController)
         }
     }
 }
 
-@Preview
 @Composable
 fun ArtistPreview() {
     // Provide a dummy ViewModel here if necessary for the preview to work
@@ -220,7 +219,7 @@ fun ArtistsScreen(viewModel: ShoppingCartViewModel, navController: NavController
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoriesScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
-    val categories = Category.values()
+    val categories = Category.entries.toTypedArray()
 
     Column {
 
@@ -268,8 +267,10 @@ fun CategoriesScreen(viewModel: ShoppingCartViewModel, navController: NavControl
 fun DummyItemButtons(viewModel: ShoppingCartViewModel) {
     // Dummy items can be fetched from the ViewModel or a static data source
     val dummyItems = ShoppingCartDataSource.dummyItems
-    val frameTypes = listOf("Wooden Frame", "Metal Frame", "Plastic Frame")
-    val photoSizes = listOf("A5", "A4", "A3", "A2")
+    //val frameTypes = listOf("Wooden Frame"*, "Metal Frame", "Plastic Frame")
+    val frameTypes = listOf("Wooden Frame")
+    //val photoSizes = listOf("A5", "A4", "A3", "A2")
+    val photoSizes = listOf("A5", "A4")
     val framePrices = mapOf("Wooden Frame" to 200f, "Metal Frame" to 200f, "Plastic Frame" to 666f)
     val sizePrices = mapOf("A5" to 0f, "A4" to 100f, "A3" to 200f, "A2" to 400f)
 
@@ -326,7 +327,7 @@ fun DummyItemButtons(viewModel: ShoppingCartViewModel) {
 }
 
 @Composable
-fun ShoppingCart(viewModel: ShoppingCartViewModel) {
+fun ShoppingCart(viewModel: ShoppingCartViewModel, navController: NavController) {
     val cartItems by viewModel.cartItems.collectAsState()
     val scrollState = rememberScrollState()
 
@@ -347,28 +348,98 @@ fun ShoppingCart(viewModel: ShoppingCartViewModel) {
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
         } else {
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 8.dp)
-                .verticalScroll(scrollState)) {
-                Column {
-                    cartItems.forEach { item ->
-                        ShoppingCartItem(item, viewModel)
-                    }
+            LazyColumn {
+                items(cartItems) { item ->
+                    ShoppingCartItem(item, viewModel)
                 }
             }
-            Button(
-                onClick = { /* Navigate to payment */ },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(top = 16.dp)
-            ) {
-                Text("Go to Payment")
-            }
+        }
+        Button(
+            onClick = { navController.navigate("payment") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+        ) {
+            Text("Go to Payment")
         }
     }
 }
 
+@Composable
+fun PaymentScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
+    val cartItems by viewModel.cartItems.collectAsState()
+    val MVA_RATE = 0.25f // The tax rate of 25%
+    val totalPriceExclMVA = cartItems.sumOf { it.price.toLong() }
+    val MVA = totalPriceExclMVA * MVA_RATE
+    val totalPriceInclMVA = totalPriceExclMVA + MVA
+
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)) {
+        // Top frame with summary
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                cartItems.forEach { item ->
+                    Text("Name: ${item.name}")
+                    Text("Frame info: ${item.frameInfo}")
+                    Text("Price: ${item.price}")
+                    Divider()
+                }
+                Text("Price excl. MVA: $totalPriceExclMVA")
+                Text("MVA: $MVA")
+                Text("Total price: $totalPriceInclMVA")
+            }
+        }
+
+        // Lower frame with payment fields
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                var cardNumber by remember { mutableStateOf("") }
+                var expirationDate by remember { mutableStateOf("") }
+                var cvvNumber by remember { mutableStateOf("") }
+
+                OutlinedTextField(
+                    value = cardNumber,
+                    onValueChange = { cardNumber = it },
+                    label = { Text("Card Number") }
+                )
+                OutlinedTextField(
+                    value = expirationDate,
+                    onValueChange = { expirationDate = it },
+                    label = { Text("Expiration Date") }
+                )
+                OutlinedTextField(
+                    value = cvvNumber,
+                    onValueChange = { cvvNumber = it },
+                    label = { Text("CVV Number") }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        // Process the payment
+                        // For simplicity, we assume payment is always successful
+                        navController.navigate("home") {
+                            popUpTo("home") { inclusive = true }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    content = { Text("Pay") }
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun ShoppingCartItem(item: ShoppingCartItem, viewModel: ShoppingCartViewModel) {
@@ -377,31 +448,33 @@ fun ShoppingCartItem(item: ShoppingCartItem, viewModel: ShoppingCartViewModel) {
             .fillMaxWidth()
             .padding(8.dp),
     ) {
-        Row(
-            modifier = Modifier.padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Replace with Image when available
-            Box(
-                modifier = Modifier
-                    .size(60.dp)
-                    .background(Color.Gray)
-            )
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp)
+        Column(modifier = Modifier){
+            Row(
+                modifier = Modifier.padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Name: ${item.name}")
-                Text("Frame info: ${item.frameInfo}")
-                Text("Price incl. frame: NOK ${item.price}")
+                // Replace with Image when available
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .background(Color.Gray)
+                )
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp)
+                ) {
+                    Text("Name: ${item.name}")
+                    Text("Frame info: ${item.frameInfo}")
+                    Text("Price incl. frame: NOK ${item.price}")
+                }
             }
             Button(
                 onClick =  { viewModel.removeItemFromCart(item) },
-                modifier = Modifier.padding(8.dp)
-            ) {
-                Text("Delete")
-            }
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {Text("D E L E T E") }
         }
     }
 }
@@ -522,24 +595,40 @@ fun PhotosByCategoryScreen(category: Category, navController: NavController) {
     }
 }
 
-@Preview
+@Preview(name = "home screen")
 @Composable
 fun DefaultPreview() {
-    // Provide a dummy ViewModel here if necessary for the preview to work
-    HomeScreen(viewModel(), rememberNavController())
-}
+    // Provide an empty ViewModel here if necessary for the preview to work
+    //HomeScreen(viewModel(), rememberNavController())
+    // This creates a new instance of the ViewModel, not the same one used at runtime
+    val viewModel = ShoppingCartViewModel().apply {
+        addItemToCart(ShoppingCartItem(1, "Landscape Painting", "Wooden Frame", 150f))
+    }
 
-@Preview
+//@Preview
 @Composable
 fun PhotosByArtistScreenPreview() {
         PhotosScreen(Artist(0, "Danny Lee", R.drawable.food0).id, rememberNavController())
 }
 
-@Preview
+    BuyMyContemporaryArtAppTheme {
+        HomeScreen(viewModel, rememberNavController())
+    }
+}
+
+//@Preview
 @Composable
 fun PhotosByCategoryScreenPreview() {
         PhotosByCategoryScreen(Category.FOOD, rememberNavController())
 }
+
+@Preview(name = "payment screen")
+@Composable
+fun PaymentPreview() {
+    // Provide a dummy ViewModel here if necessary for the preview to work
+    PaymentScreen(viewModel(), rememberNavController())
+}
+
 //////////////////////////////////////////////////////////////////
 // ViewModel classes
 data class ShoppingCartItem(
