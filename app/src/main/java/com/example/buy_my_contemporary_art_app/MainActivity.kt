@@ -616,10 +616,16 @@ fun PhotosByArtistScreenPreview() {
     }
 }
 
-//@Preview
+@Preview
+@Composable
+fun PhotosByArtistScreenPreview() {
+    PhotosScreen(Artist(0, "Danny Lee", R.drawable.food0).id, rememberNavController())
+}
+
+@Preview
 @Composable
 fun PhotosByCategoryScreenPreview() {
-        PhotosByCategoryScreen(Category.FOOD, rememberNavController())
+    PhotosByCategoryScreen(Category.FOOD, rememberNavController())
 }
 
 @Preview(name = "payment screen")
