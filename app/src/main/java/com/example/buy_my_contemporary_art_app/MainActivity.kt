@@ -531,11 +531,14 @@ fun DefaultPreview() {
 
 @Preview
 @Composable
-fun PhotosByCategoryScreenPreview() {
-    Column {
+fun PhotosByArtistScreenPreview() {
         PhotosScreen(Artist(0, "Danny Lee", R.drawable.food0).id, rememberNavController())
+}
+
+@Preview
+@Composable
+fun PhotosByCategoryScreenPreview() {
         PhotosByCategoryScreen(Category.FOOD, rememberNavController())
-    }
 }
 //////////////////////////////////////////////////////////////////
 // ViewModel classes
