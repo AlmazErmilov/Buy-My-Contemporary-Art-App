@@ -5,6 +5,14 @@ import android.os.Bundle
 import android.util.Log
 //import android.annotation.SuppressLint
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.items
+
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -17,6 +25,9 @@ import androidx.compose.foundation.layout.*
 //import androidx.compose.foundation.layout.FlowColumnScopeInstance.align
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 
@@ -42,6 +53,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 
@@ -82,6 +95,24 @@ fun MyApp(viewModel: ShoppingCartViewModel) {
         composable("home") { HomeScreen(viewModel, navController) }
         composable("artists") { ArtistsScreen(viewModel, navController) }
         composable("categories") { CategoriesScreen(viewModel, navController) }
+        composable("photos/{artistId}") { backStackEntry ->
+            PhotosScreen(
+                artistId = backStackEntry.arguments?.getString("artistId")?.toLong() ?: -1,
+                navController = navController
+            )
+        }
+        composable("photosByCategory/{categoryName}") { backStackEntry ->
+            val categoryName = backStackEntry.arguments?.getString("categoryName") ?: return@composable
+            val category = try {
+                Category.valueOf(categoryName)
+            } catch (e: IllegalArgumentException) {
+                null
+            }
+            // Ensure that we have a valid category before showing the screen
+            category?.let {
+                PhotosByCategoryScreen(it, navController)
+            }
+        }
     }
 }
 //@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -171,12 +202,14 @@ fun ArtistsScreen(viewModel: ShoppingCartViewModel, navController: NavController
                         Image(
                             painter = painterResource(id = artist.imageResId),
                             contentDescription = "${artist.name}'s picture",
-                            modifier = Modifier.size(110.dp) // Adjust the size as needed
+                            modifier = Modifier
+                                .size(110.dp)
+                                .clickable { navController.navigate("photos/${artist.id}") }// Adjust the size as needed
                         )
                     },
                     headlineContent = { Text(artist.name) },
                     modifier = Modifier.clickable {
-                        // Here you can handle the artist selection
+                        navController.navigate("photos/${artist.id}")
                     }
                 )
             }
@@ -223,7 +256,7 @@ fun CategoriesScreen(viewModel: ShoppingCartViewModel, navController: NavControl
                     },
                     headlineContent = { Text(category.name) },
                     modifier = Modifier.clickable {
-                        // Here you can handle the category selection
+                        navController.navigate("photosByCategory/${category.name}")
                     }
                 )
             }
@@ -373,11 +406,136 @@ fun ShoppingCartItem(item: ShoppingCartItem, viewModel: ShoppingCartViewModel) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PhotosScreen(artistId: Long, navController: NavController) {
+    // Assume DataSourcePhotos is an object that contains a list of all photos
+    val photos = photosByArtist(artistId)
+
+    Column {
+
+        TopAppBar(
+            title = {
+                Row {
+                    Text("<", modifier = Modifier.clickable {
+                        navController.navigate("artists")
+                    })
+
+                    Text(
+                        "Photos to buy",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
+            },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            ),
+        )
+
+        // Setting up a grid layout for the photos
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2), // Adjust the number of grid cells as needed
+            contentPadding = PaddingValues(8.dp),
+            modifier = Modifier.padding(8.dp)
+        ) {
+            items(photos) { photo ->
+                PhotoCard(photo, navController)
+            }
+        }
+    }
+}
+
+@Composable
+fun PhotoCard(photo: Photo, navController: NavController) {
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .clickable { /* Handle photo click */ },
+        //elevation = 4.dp
+    ) {
+        Column {
+            Image(
+                painter = painterResource(id = photo.imageResId),
+                contentDescription = photo.title,
+                modifier = Modifier
+                    .height(150.dp) // Fixed height for each image card
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(4.dp))
+            )
+            Text(
+                text = photo.title,
+                modifier = Modifier.padding(8.dp)
+            )
+            // Add more details or actions for each photo card here
+        }
+    }
+}
+
+fun photosByArtist(artistId: Long): List<Photo> {
+    // This will filter the photos by the artist's ID
+    return DataSourcePhotos.allPhotos.filter { it.artist.id == artistId }
+}
+fun photosByCategory(category: Category): List<Photo> {
+    // This will filter the photos by the given category
+    return DataSourcePhotos.allPhotos.filter { it.category == category }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PhotosByCategoryScreen(category: Category, navController: NavController) {
+    // This will filter the photos by the category
+    val photos = photosByCategory(category)
+
+    Column {
+
+        TopAppBar(
+            title = {
+                Row {
+                    Text("<", modifier = Modifier.clickable {
+                        navController.navigate("categories")
+                    })
+
+                    Text(
+                        "Photos to buy",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
+            },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            ),
+        )
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2), // Adjust the number of grid cells as needed
+            contentPadding = PaddingValues(8.dp),
+            modifier = Modifier.padding(8.dp)
+        ) {
+            items(photos) { photo ->
+                PhotoCard(photo, navController)
+            }
+        }
+    }
+}
+
 @Preview
 @Composable
 fun DefaultPreview() {
     // Provide a dummy ViewModel here if necessary for the preview to work
     HomeScreen(viewModel(), rememberNavController())
+}
+
+@Preview
+@Composable
+fun PhotosByCategoryScreenPreview() {
+    Column {
+        PhotosScreen(Artist(0, "Danny Lee", R.drawable.food0).id, rememberNavController())
+        PhotosByCategoryScreen(Category.FOOD, rememberNavController())
+    }
 }
 //////////////////////////////////////////////////////////////////
 // ViewModel classes
@@ -452,5 +610,18 @@ object ShoppingCartDataSource {
         //ShoppingCartItem(2, "Abstract Artwork", "Metal Frame", 200f),
         //ShoppingCartItem(3, "Portrait", "Plastic Frame", 100f),
         //ShoppingCartItem(4, "Modern Art", "Metal Frame", 300f)
+    )
+}
+
+object DataSourcePhotos {
+    val allPhotos = listOf(
+        Photo(id = 1, title = "Food0", imageResId = R.drawable.food0,
+            artist = Artist(0, "Danny Lee", R.drawable.food0),
+            category = Category.FOOD, price = 500f),
+
+        Photo(id = 2, title = "Food1", imageResId = R.drawable.food0,
+            artist = Artist(0, "Danny Lee", R.drawable.food0),
+            category = Category.FOOD, price = 300f),
+        // Add more dummy photos here
     )
 }
