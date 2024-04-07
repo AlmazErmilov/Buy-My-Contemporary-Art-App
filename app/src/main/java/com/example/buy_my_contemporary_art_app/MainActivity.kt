@@ -148,7 +148,7 @@ fun HomeScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(contentPadding)
-            //.verticalScroll(scrollState)
+                //.verticalScroll(scrollState)
         ) {
             TopAppBar(
                 title = { Text("The Art Dealer",
@@ -174,7 +174,7 @@ fun HomeScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
                     Text("Category")
                 }
             }
-            DummyItemButtons(viewModel)
+            //DummyItemButtons(viewModel)
             ShoppingCart(viewModel, navController)
         }
     }
@@ -433,7 +433,7 @@ fun PaymentScreen(viewModel: ShoppingCartViewModel, navController: NavController
             title = {
                 Row {
                     Text("<", modifier = Modifier.clickable {
-                        navController.navigate("artists")
+                        navController.navigate("home")
                     })
 
                     Text(
