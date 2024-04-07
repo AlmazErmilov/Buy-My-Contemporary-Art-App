@@ -44,6 +44,7 @@ import androidx.compose.material.icons.filled.BlurOn
 import androidx.compose.material.icons.filled.Fastfood
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
@@ -383,6 +384,7 @@ fun ShoppingCart(viewModel: ShoppingCartViewModel, navController: NavController)
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PaymentScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
     val cartItems by viewModel.cartItems.collectAsState()
@@ -390,75 +392,125 @@ fun PaymentScreen(viewModel: ShoppingCartViewModel, navController: NavController
     val totalPriceExclMVA = cartItems.sumOf { it.price.toLong() }
     val MVA = totalPriceExclMVA * MVA_RATE
     val totalPriceInclMVA = totalPriceExclMVA + MVA
+    //val context = LocalContext.current
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp)) {
-        // Top frame with summary
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                cartItems.forEach { item ->
-                    Text("Name: ${item.name}")
-                    Text("Frame info: ${item.frameInfo}")
-                    Text("Price: ${item.price}")
-                    Divider()
-                }
-                Text("Price excl. MVA: $totalPriceExclMVA")
-                Text("MVA: $MVA")
-                Text("Total price: $totalPriceInclMVA")
-            }
-        }
+    // State to control popup window visibility
+    var showPopup by remember { mutableStateOf(false) }
 
-        // Lower frame with payment fields
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth(),
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                var cardNumber by remember { mutableStateOf("") }
-                var expirationDate by remember { mutableStateOf("") }
-                var cvvNumber by remember { mutableStateOf("") }
-
-                OutlinedTextField(
-                    value = cardNumber,
-                    onValueChange = { cardNumber = it },
-                    label = { Text("Card Number") }
-                )
-                OutlinedTextField(
-                    value = expirationDate,
-                    onValueChange = { expirationDate = it },
-                    label = { Text("Expiration Date") }
-                )
-                OutlinedTextField(
-                    value = cvvNumber,
-                    onValueChange = { cvvNumber = it },
-                    label = { Text("CVV Number") }
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+    // Function to handle the payment process
+    fun handlePayment() {
+        //viewModel.clearCart() // Clear the shopping cart by a new method (not exist yet)
+        // Make a copy of the list of items to be removed to avoid concurrent modification.
+        val itemsToRemove = cartItems.toList()
+        itemsToRemove.forEach { item -> viewModel.removeItemFromCart(item) }
+        showPopup = true // Show the popup
+    }
+    if (showPopup) {
+        // Popup Window
+        AlertDialog(
+            onDismissRequest = { showPopup = false /* Dismiss dialog */ },
+            title = { Text(text = "Payment") },
+            text = { Text("Your payment is being performed") },
+            confirmButton = {
                 Button(
                     onClick = {
-                        // Process the payment
-                        // For simplicity, we assume payment is always successful
+                        showPopup = false // Dismiss the popup
                         navController.navigate("home") {
                             popUpTo("home") { inclusive = true }
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    content = { Text("Pay") }
-                )
+                    }
+                ) {Text("OK") }
+            }
+        )
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.LightGray)
+    ) {
+        TopAppBar(
+            title = {
+                Row {
+                    Text("<", modifier = Modifier.clickable {
+                        navController.navigate("artists")
+                    })
+
+                    Text(
+                        "Photos to buy",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
+            },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            ),
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            // Top frame with summary
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    cartItems.forEach { item ->
+                        Text("Name: ${item.name}")
+                        Text("Frame info: ${item.frameInfo}")
+                        Text("Price: ${item.price}")
+                        Divider()
+                    }
+                    Text("Price excl. MVA: $totalPriceExclMVA")
+                    Text("MVA: $MVA")
+                    Text("Total price: $totalPriceInclMVA")
+                }
+            }
+
+            // Lower frame with payment fields
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    var cardNumber by remember { mutableStateOf("") }
+                    var expirationDate by remember { mutableStateOf("") }
+                    var cvvNumber by remember { mutableStateOf("") }
+
+                    OutlinedTextField(
+                        value = cardNumber,
+                        onValueChange = { cardNumber = it },
+                        label = { Text("Card Number") }
+                    )
+                    OutlinedTextField(
+                        value = expirationDate,
+                        onValueChange = { expirationDate = it },
+                        label = { Text("Expiration Date") }
+                    )
+                    OutlinedTextField(
+                        value = cvvNumber,
+                        onValueChange = { cvvNumber = it },
+                        label = { Text("CVV Number") }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = { handlePayment() },
+                        modifier = Modifier.fillMaxWidth(),
+                        content = { Text("Pay") }
+                    )
+                }
             }
         }
     }
 }
-
 @Composable
 fun ShoppingCartItem(item: ShoppingCartItem, viewModel: ShoppingCartViewModel) {
     Card(
@@ -827,6 +879,11 @@ class ShoppingCartViewModel : ViewModel() {
         _cartItems.value = _cart.items
         //_cartItems.update { _cart.items }
     }
+
+/*    fun clearCart() {
+        _cart.items.clear() // Clear the shopping cart items
+        _cartItems.value = _cart.items // Update the cart items state
+    }*/
 }
 
 //////////////////////////////////////////////////////////////////
