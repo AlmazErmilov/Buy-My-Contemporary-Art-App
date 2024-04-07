@@ -38,6 +38,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BlurOn
 import androidx.compose.material.icons.filled.Fastfood
@@ -99,6 +100,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp(viewModel: ShoppingCartViewModel) {
     val navController = rememberNavController()
+
     NavHost(navController = navController, startDestination = "home") {
         composable("home") { HomeScreen(viewModel, navController) }
         composable("artists") { ArtistsScreen(viewModel, navController) }
@@ -121,6 +123,13 @@ fun MyApp(viewModel: ShoppingCartViewModel) {
             category?.let {
                 PhotosByCategoryScreen(it, navController)
             }
+        }
+        composable("photoDetail/{photoId}") { backStackEntry ->
+            PhotoDetailScreen(
+                photoId = backStackEntry.arguments?.getString("photoId")?.toLong() ?: -1,
+                navController = navController,
+                viewModel = viewModel() // Ensure you have the ShoppingCartViewModel accessible
+            )
         }
     }
 }
@@ -490,6 +499,143 @@ fun ShoppingCartItem(item: ShoppingCartItem, viewModel: ShoppingCartViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun PhotosListScreen(
+    artistId: Long? = null,
+    category: Category? = null,
+    navController: NavController
+) {
+    val photos = when {
+        artistId != null -> photosByArtist(artistId)
+        category != null -> photosByCategory(category)
+        else -> listOf()
+    }
+
+    Column {
+        TopAppBar(title = { Text("Photos") })
+        LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+            items(photos) { photo ->
+                PhotoCard(photo, navController)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PhotoDetailScreen(photoId: Long, navController: NavController, viewModel: ShoppingCartViewModel) {
+    val cartItems by viewModel.cartItems.collectAsState()
+
+    val scrollState = rememberScrollState()
+    val photo = DataSourcePhotos.allPhotos.find { it.id == photoId }
+    if (photo == null) {
+        Text("Photo not found")
+        return
+    }
+
+    val frameTypes = listOf("Wooden Frame", "Metal Frame", "Plastic Frame")
+    val photoSizes = listOf("A5", "A4", "A3", "A2")
+    val framePrices = mapOf("Wooden Frame" to 200f, "Metal Frame" to 300f, "Plastic Frame" to 100f)
+    val sizePrices = mapOf("A5" to 50f, "A4" to 100f, "A3" to 150f, "A2" to 200f)
+
+    var selectedFrame by remember { mutableStateOf(frameTypes.first()) }
+    var selectedSize by remember { mutableStateOf(photoSizes.first()) }
+
+    Column(modifier = Modifier
+        //.padding(8.dp)
+        .verticalScroll(scrollState)
+    ){
+        TopAppBar(
+            title = {
+                Row {
+                    Text("<", modifier = Modifier.clickable {
+                        navController.navigate("photos/${photo.artist.id}")
+                    })
+
+                    Text(
+                        photo.title,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
+            },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            ),
+        )
+
+        Image(
+            painter = painterResource(id = photo.imageResId),
+            contentDescription = photo.title,
+            modifier = Modifier
+                .height(470.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .padding(8.dp)
+        )
+        Text(
+            text = "Price: " + photo.price.toString() + " NOK",
+            //style = MaterialTheme.typography.h6,
+            modifier = Modifier.padding(8.dp)
+        )
+        Divider(modifier = Modifier.padding(vertical = 0.dp))
+
+        Text("Select Frame", modifier = Modifier.padding(8.dp))
+        frameTypes.forEach { frame ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 0.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = selectedFrame == frame,
+                    onClick = { selectedFrame = frame }
+                )
+                Text(text = "$frame (+${framePrices[frame]} NOK)")
+            }
+        }
+
+        Text("Select Size", modifier = Modifier.padding(horizontal = 8.dp))
+        photoSizes.forEach { size ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = selectedSize == size,
+                    onClick = { selectedSize = size }
+                )
+                Text(text = "$size (+${sizePrices[size]} NOK)")
+            }
+        }
+
+        Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
+            onClick = {
+                val basePrice = photo.price // Assuming each photo object has a base price
+                val finalPrice = basePrice + (framePrices[selectedFrame] ?: 0f) + (sizePrices[selectedSize] ?: 0f)
+                val newItem = ShoppingCartItem(
+                    id = (Math.random() * 10000).toInt(), // Example ID generation
+                    name = "${photo.title}: $selectedSize $selectedFrame",
+                    frameInfo = "$selectedFrame, $selectedSize",
+                    price = finalPrice
+                )
+                viewModel.addItemToCart(newItem)
+                navController.navigate("home") // Assuming "cart" is the route to the shopping cart screen
+            }
+        ) {
+            Text("Add to Cart")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun PhotosScreen(artistId: Long, navController: NavController) {
     // Assume DataSourcePhotos is an object that contains a list of all photos
     val photos = photosByArtist(artistId)
@@ -534,7 +680,7 @@ fun PhotoCard(photo: Photo, navController: NavController) {
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .clickable { /* Handle photo click */ },
+            .clickable { navController.navigate("photoDetail/${photo.id}") },
         //elevation = 4.dp
     ) {
         Column {
@@ -542,16 +688,16 @@ fun PhotoCard(photo: Photo, navController: NavController) {
                 painter = painterResource(id = photo.imageResId),
                 contentDescription = photo.title,
                 modifier = Modifier
-                    .height(150.dp) // Fixed height for each image card
+                    .height(150.dp) // Adjust the height as needed
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(4.dp))
             )
             Text(
                 text = photo.title,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier
+                    .padding(8.dp)
                     .align(Alignment.CenterHorizontally)
             )
-            // Add more details or actions for each photo card here
         }
     }
 }
@@ -672,7 +818,7 @@ class ShoppingCartViewModel : ViewModel() {
 
     fun addItemToCart(item: ShoppingCartItem) {
         _cart.addItem(item).also { Log.d("ShoppingCart", "Item added: $item") }
-        _cartItems.value = _cart.items.also { Log.d("ShoppingCart", "Cart items updated: $_cart.items") }
+        _cartItems.value = _cart.items //also { Log.d("ShoppingCart", "Cart items updated: $_cart.items") }
         //_cartItems.update { _cart.items }
     }
 
