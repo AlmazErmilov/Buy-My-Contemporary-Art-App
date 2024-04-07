@@ -128,7 +128,7 @@ fun MyApp(viewModel: ShoppingCartViewModel) {
             PhotoDetailScreen(
                 photoId = backStackEntry.arguments?.getString("photoId")?.toLong() ?: -1,
                 navController = navController,
-                viewModel = viewModel() // Ensure you have the ShoppingCartViewModel accessible
+                viewModel = viewModel // there was a problem here
             )
         }
     }
