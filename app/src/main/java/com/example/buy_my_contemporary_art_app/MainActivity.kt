@@ -352,11 +352,12 @@ fun ShoppingCart(viewModel: ShoppingCartViewModel, navController: NavController)
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             "My Shopping Cart",
-            style = MaterialTheme.typography.displaySmall
+            style = MaterialTheme.typography.titleLarge
         )
         Divider(color = Color.LightGray, thickness = 1.dp)
 
