@@ -1,43 +1,93 @@
 package com.example.buy_my_contemporary_art_app.ui.theme
 
-import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowCompat
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+private val LightColors = lightColorScheme(
+    primary = com.example.compose.md_theme_light_primary,
+    onPrimary = com.example.compose.md_theme_light_onPrimary,
+    primaryContainer = com.example.compose.md_theme_light_primaryContainer,
+    onPrimaryContainer = com.example.compose.md_theme_light_onPrimaryContainer,
+    secondary = com.example.compose.md_theme_light_secondary,
+    onSecondary = com.example.compose.md_theme_light_onSecondary,
+    secondaryContainer = com.example.compose.md_theme_light_secondaryContainer,
+    onSecondaryContainer = com.example.compose.md_theme_light_onSecondaryContainer,
+    tertiary = com.example.compose.md_theme_light_tertiary,
+    onTertiary = com.example.compose.md_theme_light_onTertiary,
+    tertiaryContainer = com.example.compose.md_theme_light_tertiaryContainer,
+    onTertiaryContainer = com.example.compose.md_theme_light_onTertiaryContainer,
+    error = com.example.compose.md_theme_light_error,
+    errorContainer = com.example.compose.md_theme_light_errorContainer,
+    onError = com.example.compose.md_theme_light_onError,
+    onErrorContainer = com.example.compose.md_theme_light_onErrorContainer,
+    background = com.example.compose.md_theme_light_background,
+    onBackground = com.example.compose.md_theme_light_onBackground,
+    surface = com.example.compose.md_theme_light_surface,
+    onSurface = com.example.compose.md_theme_light_onSurface,
+    surfaceVariant = com.example.compose.md_theme_light_surfaceVariant,
+    onSurfaceVariant = com.example.compose.md_theme_light_onSurfaceVariant,
+    outline = com.example.compose.md_theme_light_outline,
+    inverseOnSurface = com.example.compose.md_theme_light_inverseOnSurface,
+    inverseSurface = com.example.compose.md_theme_light_inverseSurface,
+    inversePrimary = com.example.compose.md_theme_light_inversePrimary,
+    surfaceTint = com.example.compose.md_theme_light_surfaceTint,
+    outlineVariant = com.example.compose.md_theme_light_outlineVariant,
+    scrim = com.example.compose.md_theme_light_scrim,
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFFffa84e),
-    secondary = PurpleGrey40,
-    tertiary = Pink40,
 
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+private val DarkColors = darkColorScheme(
+    primary = com.example.compose.md_theme_dark_primary,
+    onPrimary = com.example.compose.md_theme_dark_onPrimary,
+    primaryContainer = com.example.compose.md_theme_dark_primaryContainer,
+    onPrimaryContainer = com.example.compose.md_theme_dark_onPrimaryContainer,
+    secondary = com.example.compose.md_theme_dark_secondary,
+    onSecondary = com.example.compose.md_theme_dark_onSecondary,
+    secondaryContainer = com.example.compose.md_theme_dark_secondaryContainer,
+    onSecondaryContainer = com.example.compose.md_theme_dark_onSecondaryContainer,
+    tertiary = com.example.compose.md_theme_dark_tertiary,
+    onTertiary = com.example.compose.md_theme_dark_onTertiary,
+    tertiaryContainer = com.example.compose.md_theme_dark_tertiaryContainer,
+    onTertiaryContainer = com.example.compose.md_theme_dark_onTertiaryContainer,
+    error = com.example.compose.md_theme_dark_error,
+    errorContainer = com.example.compose.md_theme_dark_errorContainer,
+    onError = com.example.compose.md_theme_dark_onError,
+    onErrorContainer = com.example.compose.md_theme_dark_onErrorContainer,
+    background = com.example.compose.md_theme_dark_background,
+    onBackground = com.example.compose.md_theme_dark_onBackground,
+    surface = com.example.compose.md_theme_dark_surface,
+    onSurface = com.example.compose.md_theme_dark_onSurface,
+    surfaceVariant = com.example.compose.md_theme_dark_surfaceVariant,
+    onSurfaceVariant = com.example.compose.md_theme_dark_onSurfaceVariant,
+    outline = com.example.compose.md_theme_dark_outline,
+    inverseOnSurface = com.example.compose.md_theme_dark_inverseOnSurface,
+    inverseSurface = com.example.compose.md_theme_dark_inverseSurface,
+    inversePrimary = com.example.compose.md_theme_dark_inversePrimary,
+    surfaceTint = com.example.compose.md_theme_dark_surfaceTint,
+    outlineVariant = com.example.compose.md_theme_dark_outlineVariant,
+    scrim = com.example.compose.md_theme_dark_scrim,
 )
 
+@Composable
+fun BuyMyContemporaryArtAppTheme(
+    useDarkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable() () -> Unit
+) {
+    val colors = if (!useDarkTheme) {
+        LightColors
+    } else {
+        DarkColors
+    }
+
+    MaterialTheme(
+        colorScheme = colors,
+        content = content
+    )
+}
+/*
 @Composable
 fun BuyMyContemporaryArtAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -69,3 +119,4 @@ fun BuyMyContemporaryArtAppTheme(
         content = content
     )
 }
+*/
