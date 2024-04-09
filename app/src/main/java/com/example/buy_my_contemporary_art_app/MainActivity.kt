@@ -12,7 +12,6 @@ package com.example.buy_my_contemporary_art_app
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -21,7 +20,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -335,7 +333,8 @@ fun DummyItemButtons(viewModel: ShoppingCartViewModel) {
                         id = ShoppingCartDataSource.dummyItems.size + 1,
                         name = item.name,
                         frameInfo = "$selectedFrame, $selectedSize",
-                        price = finalPrice
+                        price = finalPrice,
+                        imageResId = item.imageResId
                     )
                     viewModel.addItemToCart(newItem)
                 }) {
@@ -437,7 +436,7 @@ fun PaymentScreen(viewModel: ShoppingCartViewModel, navController: NavController
                     })
 
                     Text(
-                        "Photos to buy",
+                        "Payment",
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -523,11 +522,12 @@ fun ShoppingCartItem(item: ShoppingCartItem, viewModel: ShoppingCartViewModel) {
                 modifier = Modifier.padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Replace with Image when available
-                Box(
+                Image(
+                    painter = painterResource(id = item.imageResId),
+                    contentDescription = "Item image",
                     modifier = Modifier
-                        .size(60.dp)
-                        .background(Color.Gray)
+                        .size(70.dp) // Adjust the size as per your UI design
+                        .clip(RoundedCornerShape(4.dp))
                 )
                 Column(
                     modifier = Modifier
@@ -665,20 +665,18 @@ fun PhotoDetailScreen(photoId: Long, navController: NavController, viewModel: Sh
         }
 
         Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
             onClick = {
-                val basePrice = photo.price // Assuming each photo object has a base price
-                val finalPrice = basePrice + (framePrices[selectedFrame] ?: 0f) + (sizePrices[selectedSize] ?: 0f)
+                val finalPrice = photo.price + (framePrices[selectedFrame] ?: 0f) + (sizePrices[selectedSize] ?: 0f)
                 val newItem = ShoppingCartItem(
                     id = (Math.random() * 10000).toInt(), // Example ID generation
                     name = "${photo.title}: $selectedSize $selectedFrame",
                     frameInfo = "$selectedFrame, $selectedSize",
-                    price = finalPrice
+                    price = finalPrice,
+                    imageResId = photo.imageResId // Include the image resource ID here
                 )
                 viewModel.addItemToCart(newItem)
-                navController.navigate("home") // Assuming "cart" is the route to the shopping cart screen
+                navController.navigate("home") // Navigate back to the home/cart screen
             }
         ) {
             Text("Add to Cart")
@@ -810,7 +808,7 @@ fun DefaultPreview() {
     //HomeScreen(viewModel(), rememberNavController())
     // This creates a new instance of the ViewModel, not the same one used at runtime
     val viewModel = ShoppingCartViewModel().apply {
-        addItemToCart(ShoppingCartItem(1, "Landscape Painting", "Wooden Frame", 150f))
+        addItemToCart(ShoppingCartItem(1, "Landscape Painting", "Wooden Frame", 150f, 0))
     }
 
 //@Preview
@@ -849,7 +847,8 @@ data class ShoppingCartItem(
     val id: Int,
     val name: String,
     val frameInfo: String,
-    val price: Float
+    val price: Float,
+    @DrawableRes val imageResId: Int
 )
 class ShoppingCart {
     private val _items = mutableListOf<ShoppingCartItem>()
@@ -869,7 +868,7 @@ class ShoppingCartViewModel : ViewModel() {
     val cartItems: StateFlow<List<ShoppingCartItem>> = _cartItems.asStateFlow()
 
     fun addItemToCart(item: ShoppingCartItem) {
-        _cart.addItem(item).also { Log.d("ShoppingCart", "Item added: $item") }
+        _cart.addItem(item) //.also { Log.d("ShoppingCart", "Item added: $item") }
         _cartItems.value = _cart.items //also { Log.d("ShoppingCart", "Cart items updated: $_cart.items") }
         //_cartItems.update { _cart.items }
     }
@@ -917,7 +916,7 @@ class DataSourceArtist(context: Context){
 // DATASOURCE classes
 object ShoppingCartDataSource {
     val dummyItems = listOf(
-        ShoppingCartItem(1, "Landscape Painting", "Wooden Frame", 150f),
+        ShoppingCartItem(1, "Landscape Painting", "Wooden Frame", 150f, 0),
         //ShoppingCartItem(2, "Abstract Artwork", "Metal Frame", 200f),
         //ShoppingCartItem(3, "Portrait", "Plastic Frame", 100f),
         //ShoppingCartItem(4, "Modern Art", "Metal Frame", 300f)
