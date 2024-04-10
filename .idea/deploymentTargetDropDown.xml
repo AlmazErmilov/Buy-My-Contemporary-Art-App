@@ -2,7 +2,19 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="ExampleInstrumentedTest">
+        <State />
+      </entry>
       <entry key="app">
+        <State />
+      </entry>
+      <entry key="completePurchaseClearsCart()">
+        <State />
+      </entry>
+      <entry key="completePurchaseFromCart()">
+        <State />
+      </entry>
+      <entry key="selectPhotoToAddToCart()">
         <State />
       </entry>
     </value>
