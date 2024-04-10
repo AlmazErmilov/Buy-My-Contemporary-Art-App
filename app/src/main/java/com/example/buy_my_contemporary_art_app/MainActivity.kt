@@ -1,21 +1,9 @@
 package com.example.buy_my_contemporary_art_app
 
-//import android.annotation.SuppressLint
-
-//import androidx.compose.foundation.layout.FlowColumnScopeInstance.align
-
-
-//import com.example.buy_my_contemporary_art_app.data.*
-//import com.example.buy_my_contemporary_art_app.data.ShoppingCartDataSource
-//import com.example.buy_my_contemporary_art_app.ui.HomeScreen
-//import com.example.buy_my_contemporary_art_app.ui.ShoppingCartViewModel
-
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -52,7 +40,6 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -74,16 +61,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.buy_my_contemporary_art_app.data.Artist
+import com.example.buy_my_contemporary_art_app.data.Category
+import com.example.buy_my_contemporary_art_app.data.DataSourceArtist
+import com.example.buy_my_contemporary_art_app.data.DataSourcePhotos
+import com.example.buy_my_contemporary_art_app.data.Photo
+import com.example.buy_my_contemporary_art_app.data.ShoppingCartItem
+import com.example.buy_my_contemporary_art_app.ui.ShoppingCartViewModel
 import com.example.buy_my_contemporary_art_app.ui.theme.BuyMyContemporaryArtAppTheme
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -92,13 +82,13 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             BuyMyContemporaryArtAppTheme {
-                MyApp(shoppingCartViewModel)
+                BuyMyContemporaryArtApp(shoppingCartViewModel)
             }
         }
     }
 }
 @Composable
-fun MyApp(viewModel: ShoppingCartViewModel) {
+fun BuyMyContemporaryArtApp(viewModel: ShoppingCartViewModel) {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "home") {
@@ -133,16 +123,11 @@ fun MyApp(viewModel: ShoppingCartViewModel) {
         }
     }
 }
-//@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
-    //val cartItems by viewModel.cartItems.collectAsState()
-    //val scrollState = rememberScrollState()
-
-    Scaffold(
-        //modifier = Modifier.verticalScroll(scrollState)
-    ) {contentPadding ->
+    Scaffold {contentPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -178,12 +163,6 @@ fun HomeScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
             ShoppingCart(viewModel, navController)
         }
     }
-}
-
-@Composable
-fun ArtistPreview() {
-    // Provide a dummy ViewModel here if necessary for the preview to work
-    ArtistsScreen(viewModel(), rememberNavController())
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -240,7 +219,6 @@ fun CategoriesScreen(viewModel: ShoppingCartViewModel, navController: NavControl
     val categories = Category.entries.toTypedArray()
 
     Column {
-
         TopAppBar(
             title = {
                 Row {
@@ -282,73 +260,8 @@ fun CategoriesScreen(viewModel: ShoppingCartViewModel, navController: NavControl
 }
 
 @Composable
-fun DummyItemButtons(viewModel: ShoppingCartViewModel) {
-    // Dummy items can be fetched from the ViewModel or a static data source
-    val dummyItems = ShoppingCartDataSource.dummyItems
-    //val frameTypes = listOf("Wooden Frame"*, "Metal Frame", "Plastic Frame")
-    val frameTypes = listOf("Wooden Frame")
-    //val photoSizes = listOf("A5", "A4", "A3", "A2")
-    val photoSizes = listOf("A5", "A4")
-    val framePrices = mapOf("Wooden Frame" to 200f, "Metal Frame" to 200f, "Plastic Frame" to 666f)
-    val sizePrices = mapOf("A5" to 0f, "A4" to 100f, "A3" to 200f, "A2" to 400f)
-
-    Column {
-        dummyItems.forEach { item ->
-            var selectedFrame by remember { mutableStateOf(frameTypes.first()) }
-            var selectedSize by remember { mutableStateOf(photoSizes.first()) }
-
-            Text(text = item.name, modifier = Modifier.padding(8.dp))
-            frameTypes.forEach { frame ->
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = selectedFrame == frame,
-                        onClick = { selectedFrame = frame },
-                        colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
-                    )
-                    Text(text = "$frame (+${framePrices[frame]} NOK)")
-                }
-            }
-            photoSizes.forEach { size ->
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = selectedSize == size,
-                        onClick = { selectedSize = size },
-                        colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
-                    )
-                    Text(text = "$size (+${sizePrices[size]} NOK)")
-                }
-            }
-            Button(modifier = Modifier.fillMaxWidth(),
-                onClick = {
-                    val basePrice = item.price // Base price for the photo
-                    val finalPrice = basePrice + (framePrices[selectedFrame] ?: 0f) + (sizePrices[selectedSize] ?: 0f)
-                    val newItem = ShoppingCartItem(
-                        id = ShoppingCartDataSource.dummyItems.size + 1,
-                        name = item.name,
-                        frameInfo = "$selectedFrame, $selectedSize",
-                        price = finalPrice,
-                        imageResId = item.imageResId
-                    )
-                    viewModel.addItemToCart(newItem)
-                }) {
-                Text("Add to Cart")
-            }
-        }
-    }
-}
-
-@Composable
 fun ShoppingCart(viewModel: ShoppingCartViewModel, navController: NavController) {
     val cartItems by viewModel.cartItems.collectAsState()
-    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
@@ -393,14 +306,12 @@ fun PaymentScreen(viewModel: ShoppingCartViewModel, navController: NavController
     val totalPriceExclMVA = cartItems.sumOf { it.price.toLong() }
     val MVA = totalPriceExclMVA * MVA_RATE
     val totalPriceInclMVA = totalPriceExclMVA + MVA
-    //val context = LocalContext.current
 
     // State to control popup window visibility
     var showPopup by remember { mutableStateOf(false) }
 
     // Function to handle the payment process
     fun handlePayment() {
-        //viewModel.clearCart() // Clear the shopping cart by a new method (not exist yet)
         // Make a copy of the list of items to be removed to avoid concurrent modification.
         val itemsToRemove = cartItems.toList()
         itemsToRemove.forEach { item -> viewModel.removeItemFromCart(item) }
@@ -512,6 +423,7 @@ fun PaymentScreen(viewModel: ShoppingCartViewModel, navController: NavController
         }
     }
 }
+
 @Composable
 fun ShoppingCartItem(item: ShoppingCartItem, viewModel: ShoppingCartViewModel) {
     Card(
@@ -553,29 +465,6 @@ fun ShoppingCartItem(item: ShoppingCartItem, viewModel: ShoppingCartViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PhotosListScreen(
-    artistId: Long? = null,
-    category: Category? = null,
-    navController: NavController
-) {
-    val photos = when {
-        artistId != null -> photosByArtist(artistId)
-        category != null -> photosByCategory(category)
-        else -> listOf()
-    }
-
-    Column {
-        TopAppBar(title = { Text("Photos") })
-        LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-            items(photos) { photo ->
-                PhotoCard(photo, navController)
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
 fun PhotoDetailScreen(photoId: Long, navController: NavController, viewModel: ShoppingCartViewModel) {
     val cartItems by viewModel.cartItems.collectAsState()
 
@@ -594,9 +483,7 @@ fun PhotoDetailScreen(photoId: Long, navController: NavController, viewModel: Sh
     var selectedFrame by remember { mutableStateOf(frameTypes.first()) }
     var selectedSize by remember { mutableStateOf(photoSizes.first()) }
 
-    Column(modifier = Modifier
-        //.padding(8.dp)
-        .verticalScroll(scrollState)
+    Column(modifier = Modifier.verticalScroll(scrollState)
     ){
         TopAppBar(
             title = {
@@ -733,7 +620,6 @@ fun PhotoCard(photo: Photo, navController: NavController) {
         modifier = Modifier
             .padding(8.dp)
             .clickable { navController.navigate("photoDetail/${photo.id}") },
-        //elevation = 4.dp
     ) {
         Column {
             Image(
@@ -752,15 +638,6 @@ fun PhotoCard(photo: Photo, navController: NavController) {
             )
         }
     }
-}
-
-fun photosByArtist(artistId: Long): List<Photo> {
-    // This will filter the photos by the artist's ID
-    return DataSourcePhotos.allPhotos.filter { it.artist.id == artistId }
-}
-fun photosByCategory(category: Category): List<Photo> {
-    // This will filter the photos by the given category
-    return DataSourcePhotos.allPhotos.filter { it.category == category }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -803,25 +680,24 @@ fun PhotosByCategoryScreen(category: Category, navController: NavController) {
     }
 }
 
-@Preview(name = "home screen")
+fun photosByArtist(artistId: Long): List<Photo> {
+    // This will filter the photos by the artist's ID
+    return DataSourcePhotos.allPhotos.filter { it.artist.id == artistId }
+}
+fun photosByCategory(category: Category): List<Photo> {
+    // This will filter the photos by the given category
+    return DataSourcePhotos.allPhotos.filter { it.category == category }
+}
+
+@Preview
 @Composable
-fun DefaultPreview() {
+fun HomeScreenPreview() {
     // Provide an empty ViewModel here if necessary for the preview to work
-    //HomeScreen(viewModel(), rememberNavController())
     // This creates a new instance of the ViewModel, not the same one used at runtime
     val viewModel = ShoppingCartViewModel().apply {
         addItemToCart(ShoppingCartItem(1, "Landscape Painting", "Wooden Frame", 150f, 0))
     }
-
-//@Preview
-@Composable
-fun PhotosByArtistScreenPreview() {
-        PhotosScreen(Artist(0, "Danny Lee", R.drawable.food0).id, rememberNavController())
-}
-
-    BuyMyContemporaryArtAppTheme {
-        HomeScreen(viewModel, rememberNavController())
-    }
+    HomeScreen(viewModel(), rememberNavController())
 }
 
 @Preview
@@ -843,144 +719,97 @@ fun PaymentPreview() {
     PaymentScreen(viewModel(), rememberNavController())
 }
 
-//////////////////////////////////////////////////////////////////
-// ViewModel classes
-data class ShoppingCartItem(
-    val id: Int,
-    val name: String,
-    val frameInfo: String,
-    val price: Float,
-    @DrawableRes val imageResId: Int
-)
-class ShoppingCart {
-    private val _items = mutableListOf<ShoppingCartItem>()
-    val items: List<ShoppingCartItem> get() = _items.toList()
+@Preview
+@Composable
+fun ArtistPreview() {
+    ArtistsScreen(viewModel(), rememberNavController())
+}
 
-    fun addItem(item: ShoppingCartItem) {
-        _items.add(item)
+/* Deprecated
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PhotosListScreen(
+    artistId: Long? = null,
+    category: Category? = null,
+    navController: NavController
+) {
+    val photos = when {
+        artistId != null -> photosByArtist(artistId)
+        category != null -> photosByCategory(category)
+        else -> listOf()
     }
 
-    fun removeItem(item: ShoppingCartItem) {
-        _items.remove(item)
+    Column {
+        TopAppBar(title = { Text("Photos") })
+        LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+            items(photos) { photo ->
+                PhotoCard(photo, navController)
+            }
+        }
     }
-}
-class ShoppingCartViewModel : ViewModel() {
-    private val _cart = ShoppingCart()
-    private val _cartItems = MutableStateFlow<List<ShoppingCartItem>>(_cart.items)
-    val cartItems: StateFlow<List<ShoppingCartItem>> = _cartItems.asStateFlow()
+}*/
 
-    fun addItemToCart(item: ShoppingCartItem) {
-        _cart.addItem(item) //.also { Log.d("ShoppingCart", "Item added: $item") }
-        _cartItems.value = _cart.items //also { Log.d("ShoppingCart", "Cart items updated: $_cart.items") }
-        //_cartItems.update { _cart.items }
+/* Deprecated
+@Composable
+fun DummyItemButtons(viewModel: ShoppingCartViewModel) {
+    // Dummy items can be fetched from the ViewModel or a static data source
+    val dummyItems = ShoppingCartDataSource.dummyItems
+    //val frameTypes = listOf("Wooden Frame"*, "Metal Frame", "Plastic Frame")
+    val frameTypes = listOf("Wooden Frame")
+    //val photoSizes = listOf("A5", "A4", "A3", "A2")
+    val photoSizes = listOf("A5", "A4")
+    val framePrices = mapOf("Wooden Frame" to 200f, "Metal Frame" to 200f, "Plastic Frame" to 666f)
+    val sizePrices = mapOf("A5" to 0f, "A4" to 100f, "A3" to 200f, "A2" to 400f)
+
+    Column {
+        dummyItems.forEach { item ->
+            var selectedFrame by remember { mutableStateOf(frameTypes.first()) }
+            var selectedSize by remember { mutableStateOf(photoSizes.first()) }
+
+            Text(text = item.name, modifier = Modifier.padding(8.dp))
+            frameTypes.forEach { frame ->
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = selectedFrame == frame,
+                        onClick = { selectedFrame = frame },
+                        colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
+                    )
+                    Text(text = "$frame (+${framePrices[frame]} NOK)")
+                }
+            }
+            photoSizes.forEach { size ->
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = selectedSize == size,
+                        onClick = { selectedSize = size },
+                        colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
+                    )
+                    Text(text = "$size (+${sizePrices[size]} NOK)")
+                }
+            }
+            Button(modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    val basePrice = item.price // Base price for the photo
+                    val finalPrice = basePrice + (framePrices[selectedFrame] ?: 0f) + (sizePrices[selectedSize] ?: 0f)
+                    val newItem = ShoppingCartItem(
+                        id = ShoppingCartDataSource.dummyItems.size + 1,
+                        name = item.name,
+                        frameInfo = "$selectedFrame, $selectedSize",
+                        price = finalPrice,
+                        imageResId = item.imageResId
+                    )
+                    viewModel.addItemToCart(newItem)
+                }) {
+                Text("Add to Cart")
+            }
+        }
     }
-
-    fun removeItemFromCart(item: ShoppingCartItem) {
-        _cart.removeItem(item)
-        _cartItems.value = _cart.items
-        //_cartItems.update { _cart.items }
-    }
-
-/*    fun clearCart() {
-        _cart.items.clear() // Clear the shopping cart items
-        _cartItems.value = _cart.items // Update the cart items state
-    }*/
-}
-
-//////////////////////////////////////////////////////////////////
-// basic classes
-data class Photo(
-    val id: Long,
-    val title: String = "",
-    @DrawableRes
-    val imageResId: Int,
-    val artist: Artist,
-    val category: Category,
-    var price: Float = 0.0f
-)
-enum class Category{
-    ANIMALS,
-    SPORTS,
-    FOOD,
-    ABSTRACT }
-
-data class Artist(
-    val id: Long,
-    val name: String,
-    @DrawableRes val imageResId: Int
-)
-class DataSourceArtist(context: Context){
-    val artists = listOf(
-        Artist(0, context.getString(R.string.billy), R.drawable.billyherr),
-        Artist(1, context.getString(R.string.anthony), R.drawable.vit),
-        Artist(2, context.getString(R.string.tj), R.drawable.cummings),
-        Artist(3, context.getString(R.string.danny), R.drawable.danny),
-    )
-}
-
-//////////////////////////////////////////////////////////////////
-// DATASOURCE classes
-object ShoppingCartDataSource {
-    val dummyItems = listOf(
-        ShoppingCartItem(1, "Landscape Painting", "Wooden Frame", 150f, 0),
-        //ShoppingCartItem(2, "Abstract Artwork", "Metal Frame", 200f),
-        //ShoppingCartItem(3, "Portrait", "Plastic Frame", 100f),
-        //ShoppingCartItem(4, "Modern Art", "Metal Frame", 300f)
-    )
-}
-
-object DataSourcePhotos {
-    val allPhotos = listOf(
-        Photo(id = 1, title = "Food0", imageResId = R.drawable.food0,
-            artist = Artist(0, R.string.danny.toString(), R.drawable.food0),
-            category = Category.FOOD, price = 500f),
-        Photo(id = 2, title = "Food1", imageResId = R.drawable.food1,
-            artist = Artist(1, R.string.anthony.toString(), R.drawable.food0),
-            category = Category.FOOD, price = 300f),
-        Photo(id = 3, title = "Food2", imageResId = R.drawable.food2,
-            artist = Artist(2, R.string.tj.toString(), R.drawable.food0),
-            category = Category.FOOD, price = 300f),
-        Photo(id = 4, title = "Food3", imageResId = R.drawable.food3,
-            artist = Artist(3, "Danny Lee", R.drawable.food0),
-            category = Category.FOOD, price = 300f),
-
-        Photo(id = 5, title = "Abstract0", imageResId = R.drawable.abstract0,
-            artist = Artist(0, R.string.danny.toString(), R.drawable.food0),
-            category = Category.ABSTRACT, price = 300f),
-        Photo(id = 6, title = "Abstract1", imageResId = R.drawable.abstract1,
-            artist = Artist(1, R.string.anthony.toString(), R.drawable.food0),
-            category = Category.ABSTRACT, price = 300f),
-        Photo(id = 7, title = "Abstract2", imageResId = R.drawable.abstract2,
-            artist = Artist(2, R.string.tj.toString(), R.drawable.food0),
-            category = Category.ABSTRACT, price = 300f),
-        Photo(id = 8, title = "Abstract3", imageResId = R.drawable.abstract3,
-            artist = Artist(3, R.string.billy.toString(), R.drawable.food0),
-            category = Category.ABSTRACT, price = 300f),
-
-        Photo(id = 9, title = "Animal0", imageResId = R.drawable.animal0,
-            artist = Artist(0, R.string.danny.toString(), R.drawable.food0),
-            category = Category.ANIMALS, price = 300f),
-        Photo(id = 10, title = "Animal1", imageResId = R.drawable.animal1,
-            artist = Artist(1, R.string.anthony.toString(), R.drawable.food0),
-            category = Category.ANIMALS, price = 300f),
-        Photo(id = 11, title = "Animal2", imageResId = R.drawable.animal2,
-            artist = Artist(2, R.string.tj.toString(), R.drawable.food0),
-            category = Category.ANIMALS, price = 300f),
-        Photo(id = 12, title = "Animal3", imageResId = R.drawable.animal3,
-            artist = Artist(3, R.string.billy.toString(), R.drawable.food0),
-            category = Category.ANIMALS, price = 300f),
-
-        Photo(id = 13, title = "Sports0", imageResId = R.drawable.sports0,
-            artist = Artist(0, R.string.danny.toString(), R.drawable.food0),
-            category = Category.SPORTS, price = 300f),
-        Photo(id = 14, title = "Sports1", imageResId = R.drawable.sports1,
-            artist = Artist(1, R.string.anthony.toString(), R.drawable.food0),
-            category = Category.SPORTS, price = 300f),
-        Photo(id = 15, title = "Sports2", imageResId = R.drawable.sports2,
-            artist = Artist(2, R.string.tj.toString(), R.drawable.food0),
-            category = Category.SPORTS, price = 300f),
-        Photo(id = 16, title = "Sports3", imageResId = R.drawable.sports3,
-            artist = Artist(3, R.string.billy.toString(), R.drawable.food0),
-            category = Category.SPORTS, price = 300f),
-        )
-}
+}*/

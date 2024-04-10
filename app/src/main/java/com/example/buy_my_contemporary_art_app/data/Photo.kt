@@ -1,7 +1,6 @@
-package com.example.buy_my_contemporary_art_app
+package com.example.buy_my_contemporary_art_app.data
 
 import androidx.annotation.DrawableRes
-import com.example.buy_my_contemporary_art_app.data.Artist
 
 data class Photo(
     val id: Long,
@@ -17,4 +16,5 @@ enum class Category{
     ANIMALS,
     SPORTS,
     FOOD,
-    ABSTRACT }
+    ABSTRACT
+}

@@ -4,9 +4,11 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.example.buy_my_contemporary_art_app.ui.ShoppingCartViewModel
+import com.example.buy_my_contemporary_art_app.data.ShoppingCartItem
+
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
@@ -82,9 +84,8 @@ class ExampleInstrumentedTest {
 
     @Test
     fun selectPhotoToAddToCart() {
-        val scenario = ActivityScenario.launch(MainActivity::class.java)
 
-        composeTestRule.onNodeWithText("Arstist").performClick()
+        composeTestRule.onNodeWithText("Artist").performClick()
 
         composeTestRule.onNodeWithText("Vitalijus").performClick()
 

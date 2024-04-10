@@ -1,8 +1,9 @@
 package com.example.buy_my_contemporary_art_app
 
+import com.example.buy_my_contemporary_art_app.data.ShoppingCartItem
+import com.example.buy_my_contemporary_art_app.ui.ShoppingCartViewModel
+import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.junit.Assert.*
-//import com.example.buy_my_contemporary_art_app.ShoppingCartItem
 
 class PriceCalculationTests {
     @Test
