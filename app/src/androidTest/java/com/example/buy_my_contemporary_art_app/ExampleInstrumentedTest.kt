@@ -84,7 +84,7 @@ class ExampleInstrumentedTest {
     fun selectPhotoToAddToCart() {
         val scenario = ActivityScenario.launch(MainActivity::class.java)
 
-        composeTestRule.onNodeWithText("Artist").performClick()
+        composeTestRule.onNodeWithText("Arstist").performClick()
 
         composeTestRule.onNodeWithText("Vitalijus").performClick()
 

@@ -70,6 +70,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -149,7 +150,7 @@ fun HomeScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
                 //.verticalScroll(scrollState)
         ) {
             TopAppBar(
-                title = { Text(R.string.app_title.toString(),
+                title = { Text(stringResource(R.string.app_title),
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                             .fillMaxWidth()
@@ -166,11 +167,11 @@ fun HomeScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Button(onClick = { navController.navigate(R.string.artists.toString()) }) {
-                    Text(R.string.button_artists.toString())
+                Button(onClick = { navController.navigate("artists") }) {
+                    Text(stringResource(R.string.button_artists))
                 }
-                Button(onClick = { navController.navigate(R.string.categories.toString()) }) {
-                    Text(R.string.button_categories.toString())
+                Button(onClick = { navController.navigate("categories") }) {
+                    Text(stringResource(R.string.button_categories))
                 }
             }
             //DummyItemButtons(viewModel)
@@ -198,9 +199,9 @@ fun ArtistsScreen(viewModel: ShoppingCartViewModel, navController: NavController
             title = {
                 Row {
                     Text("<", modifier = Modifier.clickable {
-                        navController.navigate(R.string.home.toString())
+                        navController.navigate("home")
                     })
-                    Text(R.string.choose_artist.toString(),
+                    Text(stringResource(R.string.choose_artist),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     ) }
@@ -219,7 +220,7 @@ fun ArtistsScreen(viewModel: ShoppingCartViewModel, navController: NavController
                             contentDescription = "${artist.name}'s picture",
                             modifier = Modifier
                                 .size(110.dp)
-                                .clickable { navController.navigate(R.string.photos.toString()+"/${artist.id}") }
+                                .clickable { navController.navigate("photos/${artist.id}") }
                                 // Adjust the size as needed
                         )
                     },
@@ -415,7 +416,7 @@ fun PaymentScreen(viewModel: ShoppingCartViewModel, navController: NavController
                 Button(
                     onClick = {
                         showPopup = false // Dismiss the popup
-                        navController.navigate(R.string.home.toString()) {
+                        navController.navigate("home") {
                             popUpTo("home") { inclusive = true }
                         }
                     }
