@@ -149,12 +149,13 @@ fun HomeScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
                 //.verticalScroll(scrollState)
         ) {
             TopAppBar(
-                title = { Text("The Art Dealer",
-                textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally)
-                ) },
+                title = { Text(R.string.app_name.toString(),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.CenterHorizontally)
+                        )
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 ),
@@ -165,10 +166,10 @@ fun HomeScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Button(onClick = { navController.navigate("artists") }) {
+                Button(onClick = { navController.navigate(R.string.artists.toString()) }) {
                     Text("Artist")
                 }
-                Button(onClick = { navController.navigate("categories") }) {
+                Button(onClick = { navController.navigate(R.string.categories.toString()) }) {
                     Text("Category")
                 }
             }
@@ -197,13 +198,11 @@ fun ArtistsScreen(viewModel: ShoppingCartViewModel, navController: NavController
             title = {
                 Row {
                     Text("<", modifier = Modifier.clickable {
-                        navController.navigate("home")
+                        navController.navigate(R.string.home.toString())
                     })
-
-                    Text("Choose artist",
+                    Text(R.string.choose_artist.toString(),
                         textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                     ) }
             },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -220,7 +219,8 @@ fun ArtistsScreen(viewModel: ShoppingCartViewModel, navController: NavController
                             contentDescription = "${artist.name}'s picture",
                             modifier = Modifier
                                 .size(110.dp)
-                                .clickable { navController.navigate("photos/${artist.id}") }// Adjust the size as needed
+                                .clickable { navController.navigate(R.string.photos.toString()+"/${artist.id}") }
+                                // Adjust the size as needed
                         )
                     },
                     headlineContent = { Text(artist.name) },
@@ -415,7 +415,7 @@ fun PaymentScreen(viewModel: ShoppingCartViewModel, navController: NavController
                 Button(
                     onClick = {
                         showPopup = false // Dismiss the popup
-                        navController.navigate("home") {
+                        navController.navigate(R.string.home.toString()) {
                             popUpTo("home") { inclusive = true }
                         }
                     }
@@ -897,7 +897,11 @@ data class Photo(
     val category: Category,
     var price: Float = 0.0f
 )
-enum class Category { ANIMALS, SPORTS, FOOD, ABSTRACT }
+enum class Category{
+    ANIMALS,
+    SPORTS,
+    FOOD,
+    ABSTRACT }
 
 data class Artist(
     val id: Long,
