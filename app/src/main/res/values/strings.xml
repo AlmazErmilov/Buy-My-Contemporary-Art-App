@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Buy-My-Contemporary-Art-App</string>
     <string name="app_title">The Art Dealer</string>
+
+    <!-- Artists -->
     <string name="billy">Billy Herrington</string>
     <string name="danny">Danny Lee</string>
     <string name="anthony">Vitalijus</string>
@@ -8,5 +10,20 @@
     <string name="wood_frame">Wood Frame</string>
     <string name="metal_frame">Metal Frame</string>
     <string name="plastic_frame">Plastic Frame</string>
+
+    <!-- Categories -->
+    <string name="animals">animals</string>
+    <string name="sports">sports</string>
+    <string name="food">food</string>
+    <string name="abstracts">abstract</string>
+
+    <!-- Navigations -->
+    <string name="home">home</string>
+    <string name="artists">artists</string>
+    <string name="categories">categories</string>
+    <string name="photos">photos</string>
+    <string name="payment">payment</string>
+
+    <string name="choose_artist">Choose artist</string>
 
 </resources>
