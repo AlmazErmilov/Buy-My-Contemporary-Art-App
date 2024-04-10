@@ -149,7 +149,7 @@ fun HomeScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
                 //.verticalScroll(scrollState)
         ) {
             TopAppBar(
-                title = { Text(R.string.app_name.toString(),
+                title = { Text(R.string.app_title.toString(),
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                             .fillMaxWidth()
@@ -167,10 +167,10 @@ fun HomeScreen(viewModel: ShoppingCartViewModel, navController: NavController) {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(onClick = { navController.navigate(R.string.artists.toString()) }) {
-                    Text("Artist")
+                    Text(R.string.button_artists.toString())
                 }
                 Button(onClick = { navController.navigate(R.string.categories.toString()) }) {
-                    Text("Category")
+                    Text(R.string.button_categories.toString())
                 }
             }
             //DummyItemButtons(viewModel)

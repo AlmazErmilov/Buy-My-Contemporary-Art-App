@@ -24,6 +24,9 @@
     <string name="photos">photos</string>
     <string name="payment">payment</string>
 
+    <!-- Buttons -->
     <string name="choose_artist">Choose artist</string>
+    <string name="button_artists">Artist</string>
+    <string name="button_categories">Category</string>
 
 </resources>
