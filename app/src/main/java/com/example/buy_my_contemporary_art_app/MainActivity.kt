@@ -270,7 +270,7 @@ fun ShoppingCart(viewModel: ShoppingCartViewModel, navController: NavController)
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            "My Shopping Cart",
+            "My cart",
             style = MaterialTheme.typography.titleLarge
         )
         Divider(color = Color.LightGray, thickness = 1.dp)
